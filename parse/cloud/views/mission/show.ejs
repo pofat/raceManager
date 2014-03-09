@@ -5,7 +5,7 @@
 </h1>
 
 <h2>任務內容</h2>
-<p class="description"><input type="text" id="missionContent" value="<%= mission.get("missionContent") %>" /></p>
+<p class="description" data-hint-position="top" data-hint="可修改的內容|請點我兩下後開始修改，再點其它處自動存檔。"><input type="text" id="missionContent" value="<%= mission.get("missionContent") %>" size="100" mxalength="50"/></p>
  <style type="text/css"> 
   #missionContent {
     border: none;
@@ -23,36 +23,54 @@
     $(this).addClass('focus');
   }).blur( function() {
     $(this).removeClass('focus');
-    $.post("/mission/updateContent/<%= mission.id %>", {"missionContent":$(this).value}, function(results){
+    $.post("/mission/updateContent/<%= mission.id %>", {missionContent:$('#missionContent')[0].value}, function(results){
       if(!results.successs){
-        $(this).value=<%= mission.get("missionContent") %>;
         $.Notify({
-          style: {backgournd: 'red', color: 'white'},
           shadow: true,
           position: 'bottom-right',
-          content: "更新內容失敗!!!"
+          content: "更新任務內容成功!!!"
+        });
+      }else{
+        $.Notify({
+          shadow: true,
+          position: 'bottom-right',
+          content: "更新任務內容失敗!!!"
         });
       }
     });
   });
+
+  //set to link event
+  function toLink() {
+    if(typeof $('#hresmanage').datagrid("getSelected") == 'undefined'){
+      alert("請稍候再試！");
+      return false;
+    }
+    if($('#hresmanage').datagrid("getSelected") == null){
+      alert("請先選擇一筆人力需求!");
+    }else{
+      window.location.href="/linkHreq?reqId=" + $('#hresmanage').datagrid("getSelected").objectId;
+      //$('#reqForm').submit();
+      //$('#reqId')[0].value = $('#hresmanage').datagrid("getSelected").objectId;
+      //$('#reqForm').submit();
+    }
+  };
+  function toAssign() {
+    if(typeof $('#hresmanage').datagrid("getSelected") == 'undefined'){
+      alert("請稍候再試！");
+      return false;
+    }
+    if($('#hresmanage').datagrid("getSelected") == null){
+      alert("請先選擇一筆人力需求!");
+    }else{
+      var url = "/assignReq/"+$('#hresmanage').datagrid("getSelected").objectId;
+      //$.post( url , { id : $('#hresmanage').datagrid("getSelected").objectId} );
+    }
+  };
 </script>
 
-<!-- delete test -->
-<form action="<%= '/mission/' + mission.id %>" method='post'>
-  <!-- you need following hidden tag to overwrite post method into del -->
-  <input type='hidden' name='_method' value='delete' />
-  <button class="danger large" type="submit" disable>刪除任務</button>  
-</form>
-
-<!-- update example -->
-<form action="<%= '/mission/' + mission.id %>" method='post'>
-  <!-- you need following hidden tag to overwrite post method into put for update usage -->
-  <input type='hidden' name='_method' value='put' />
-  <button class="danger large" type="submit" disable>儲存任務</button>  
-</form>
-
 <br>
-<div>
+<div class="example">
 <div class="tab-control" data-role="tab-control" data-effect="fade">
   <ul class="tabs">
     <li class="active"><a href="#_page_1">人力需求</a></li>
@@ -62,20 +80,36 @@
 
   <div class="frames">
     <div class="frame" id="_page_1">
-      <h4>人力需求管理</h4>
-      <table id="hresmanage" title="人力需求列表" style="width:550px;height:450px"
+      <h3>此任務的人力需求管理
+       <a href="#" onClick="toLink();return false;">
+       <i class="icon-share-2 on-left on-right" style="background: red; color: white; padding: 10px; border-radius: 50%" data-hint-position="top" data-hint="點我開始分配物資|請先選擇一筆人力需求後再點擊，以進入物資分配頁面"></i></a>
+       <small>配發人力需求物資</small>
+       <a href="#" onClick="toAssign(); return false;">
+       <i class="icon-arrow-up-right on-left on-right" style="background: blue; color: white; padding: 10px; border-radius: 50%" data-hint-position="bottom" data-hint="點我開始指配志工|請先選擇一筆人力需求後再點擊，以進入志工指派頁面"></i></a>
+
+       <small>指派志工</small>
+       </h4>
+       <!-- for assign or link usage form -->
+       <form id="reqForm" action="/linkHreq" method="post">
+        <input id="reqId" type="hidden" value="" />
+       </form>
+       <form id="assignForm" action="/assignHreq" method="post">
+        <input id="assignId" type="hidden" value="" />
+       </form>
+       <!-- form end -->
+      <table id="hresmanage" title="人力需求列表" style="height:450px" class="bordered"
         toolbar="#toolbar" idField="objectId" pagination="true"
         rownumbers="true" fitColumns="true" singleSelect="true">
         <thead>
           <tr>
-            <th field="jobContent" width="50" editor="{type:'validatebox',options:{required:true}}>工作內容</th>
-              <th field="numOfPpl" width="10" editor="{type:'validatebox',options:{required:true}}>人數需求</th>
-              <th field="workLocation" width="20">工作地點</th>
-              <th field="startTime" width="20">開始時間</th>
-              <th field="endTime" width="20">結束時間</th>
-              <th field="wageType" width="10">志工或工讀</th>              
-              <th field="gatherLocation" width="20">集合地點</th>              
-              <th field="note" width="50">備註</th>            
+            <th field="jobContent" width="50" editor="{type:'validatebox',options:{required:true}}">工作內容</th>
+              <th field="numOfPpl" width="20" editor="{type:'validatebox',options:{required:true}}">人數需求</th>
+              <th field="workLocation" width="20" editor="text">工作地點</th>
+              <th field="startTime" width="20" editor="text">開始時間</th>
+              <th field="endTime" width="20" editor="text">結束時間</th>
+              <th field="wageType" width="20" editor="{type:'validatebox',options:{required:true}}">志工或工讀</th>              
+              <th field="gatherLocation" width="30" editor="text">集合地點</th>              
+              <th field="note" width="50" editor="text">備註</th>            
           </tr>
         </thead>
       </table>
@@ -88,10 +122,10 @@
       <script type="text/javascript">
         $(function(){
           $('#hresmanage').edatagrid({
-            url: '/admin/showNhres',
-            saveUrl: '/nhr',
-            updateUrl: '/nhrUpdate',
-            destroyUrl: '/admin/delNhres'
+            url: '/mission/<%= mission.id %>/showHreq',
+            saveUrl: '/mission/<%= mission.id %>/newHreq',
+            updateUrl: '/hreqUpdate',
+            destroyUrl: '/delHreq'
           });
         });
       </script>
@@ -99,19 +133,19 @@
     </div>
 
     <div class="frame" id="_page_2">
-      <h4>物資需求管理</h4>
-      <table id="resmanage" title="物資需求列表（只顯示沒與人力配對之結果）" style="width:550px;height:450px"
+      <h4>此任務的物資需求管理</h4>
+      <table id="resmanage" title="物資需求列表（只顯示沒與人力配對之結果）" style="width:994px;height:450px"
         toolbar="#r_toolbar" idField="objectId" pagination="true"
         rownumbers="true" fitColumns="true" singleSelect="true">
         <thead>
           <tr>
-            <th field="itemName" width="50" editor="{type:'validatebox',options:{required:true}}">物品名稱</th>
-            <th field="amount" width="50" editor="{type:'validatebox',options:{required:true}}">數量</th>
-            <th field="personIncharge" width="50" editor="text">負責人</th>
-            <th field="ownType" width="50" editor="text">物品擁有方式</th>
-            <th field="source" width="50" editor="text">來源</th>
-            <th field="location" width="50" editor="text">地點</th>
-            <th field="note" width="50" editor="text">備註</th>
+            <th field="itemName" width="20" editor="{type:'validatebox',options:{required:true}}">物品名稱</th>
+            <th field="amount" width="10" editor="{type:'validatebox',options:{required:true}}">數量</th>
+            <th field="personIncharge" width="20" editor="text">負責人</th>
+            <th field="ownType" width="10" editor="text">物品擁有方式</th>
+            <th field="source" width="10" editor="text">來源</th>
+            <th field="location" width="20" editor="text">地點</th>
+            <th field="note" width="40" editor="text">備註</th>
           </tr>
         </thead>
       </table>
@@ -124,15 +158,17 @@
       <script type="text/javascript">
         $(function(){
           $('#resmanage').edatagrid({
-            url: '/admin/showNhres',
-            saveUrl: '/nhr',
-            updateUrl: '/nhrUpdate',
+            url: '/mission/<%= mission.id %>/showNhreq',
+            saveUrl: '/mission/<%= mission.id %>/nhwNhreq',
+            updateUrl: '/NhreqUpdate',
             destroyUrl: '/admin/delNhres'
           });
         });
       </script>
     </div>
 
+
+<!-- link page -->
     <div class="frame" id="_page_3">
       <p>這裡是連結頁面</p>
     </div>
@@ -140,3 +176,23 @@
 
 </div>
 </div>
+
+
+<br><br>
+<!-- delete test -->
+<form id="delForm" action="<%= '/mission/' + mission.id %>" method='post'>
+  <!-- you need following hidden tag to overwrite post method into del -->
+  <input type='hidden' name='_method' value='delete' />
+  <button class="danger large" type="button" id="deleteMission">刪除任務</button>
+  <script type="text/javascript">
+  $('#deleteMission').click(function() {
+    var res = confirm('您確定要刪除此任務?');
+    if(!res){ 
+       return false; 
+    }else{ 
+       $('#delForm').submit();
+    }
+  });
+  </script>
+  
+</form>

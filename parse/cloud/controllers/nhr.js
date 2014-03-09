@@ -48,6 +48,8 @@ exports.new = function(req, res) {
 exports.create = function(req, res){
   if(Parse.User.current()){
   	var nhrequest = new nhRequest();
+    var mission = new Mission();
+    mission.id = req.params.id;
   	//add defualt project name to it
   	_.extend(req.body, {'project':projectName});
   	//change string to int
@@ -62,19 +64,18 @@ exports.create = function(req, res){
     nhrequest.save(_.pick(req.body, 'itemName', 'amount', 'personIncharge', 'ownType', 'source', 'location', 'progress', 'note', 'project'), {
       success: function(nhrequest) {      
         alert('New object created with objectId: ' + nhrequest.id);
-        var missionQuery = new Parse.Query(Mission);
-        missionQuery.get(req.params.mission_id).then(function(mission) {
-        	//link thie request to its parent mission
-        	nhrequest.set("relatedMission", mission);
-        	nhrequest.save().then(function(){
-        		//TODO need discuss
-        		res.redirect('/nhrequest');
-        	});
+        nhrequest.set("relatedMission", mission);
+        mission.fetch().then(function(mission) {
+        	//link thie request to its parent mission        	
+          nhrequest.set("group", mission.get("startGroup"));
+          console.log("mission group = "+mission.get("startGroup"));
+        	nhrequest.save();
+        	res.send(nhrequest);
         });        
       },
       error: function(nhrequest, error) {      
         alert('Failed to create new object, with error code: ' + error.description);
-        res.redirect('/nhrequest');
+        res.send({});
       }
     });    
   }else{
@@ -107,9 +108,16 @@ exports.show = function(req, res){
 exports.update = function(req, res){
   if(Parse.User.current()){
   	var nhrequest = new nhRequest();
-  	nhrequest.id = req.params.id;
-  	nhrequest.save(_.pick(req.body, 'itemName', 'amount', 'personIncharge', 'ownType', 'source', 'location', 'progress', 'note', 'project')).then(function() {
-  	  res.redirect('/nhrequest/'+nhrequest.id);
+  	nhrequest.id = req.body.id;
+  	nhrequest.save(_.pick(req.body, 'itemName', 'amount', 'personIncharge', 'ownType', 'source', 'location', 'progress', 'note', 'project'), {
+      success: function(nhrequest){
+        alert('object update with objectId: ' + nhrequest.id);
+        res.send(nhrequest);       
+      },
+      error: function(nhrequest, error){
+        alert('update nhreq object error with err code :'+error.description);
+        res.send({});
+      }
   	});
   }else{
   	res.redirect('/login');
@@ -124,6 +132,33 @@ exports.delete = function(req, res) {
   });
 };
 
+
+//for jeasyui 
+exports.listNhreq = function(req, res) {
+  if(Parse.User.current()){
+    var query = new Parse.Query(nhRequest);
+    var mission = new Mission();
+    mission.id = req.params.id;  
+    Parse.User.current().fetch().then(function(user) {
+      //result amount limit
+      query.limit(500);
+      query.equalTo("relatedMission", mission);
+      //sort
+      query.descending('createdAt');
+      query.find({
+        success: function(results){
+          res.send(results);
+        },
+        error: function(results, error){
+          alert("get nhrequst list error with err code: "+ error.description);
+          res.send({});
+        }
+      });
+    });
+  }else{
+    res.redirect('/login');
+  } 
+};
 //create a resource
 exports.createResource = function(req, res) {  
   if(Parse.User.current()){

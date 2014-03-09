@@ -8,7 +8,7 @@ var nhResource = Parse.Object.extend("nhResource");
 exports.index = function(req, res) {
   if(Parse.User.current()){
   	Parse.User.current().fetch().then(function(user){
-  	  if(user.get("privilege") != 0){
+  	  if(user.get("privilege") > 1){
   	  	res.render('401');//TODO a unauthority page
   	  }else{
   	  	res.render('admin/index', {

@@ -125,6 +125,7 @@ exports.update = function(req, res){
   	res.redirect('/login');
   }
 };
+//update mission content only
 exports.updateContent = function(req, res){
   if(Parse.User.current()){
     var mission = new Mission();
@@ -145,23 +146,57 @@ exports.updateContent = function(req, res){
   }
 };
 //delete a mission 
+//TODO : nhrequest can't be deleted
 exports.delete = function(req, res) {
   var mission = new Mission();
   mission.id = req.params.id;
-  //mission.id = req.body.id;
   // Also delete mission's corresponding nhrequest and hrequest - and hrquests' corresponding human resource  
   var hrequestQuery = new Parse.Query(hRequest);
   var nhrequestQuery = new Parse.Query(nhRequest);
   hrequestQuery.equalTo('relatedMission', mission);
-  nhrequestQuery.equalTo('relatedMission', mission);  
+  nhrequestQuery.equalTo('relatedMission', mission);
+  hrequestQuery.find({
+    success: function(hrequests) {
+      for(var i = 0; i < hrequests.length; i++) {
+        hrequests[i].destroy(null,{
+          success: function(hrequest) {
+            alert("object delete successfully : "+hrequest.id);
+          },
+          error: function(hrequest, error) {
+            alert("delet "+hrequest.id + " failed with err code : "+error.description);
+          }
+        });
+      }      
+    }, 
+    error: function(hrequests, error){
+      alert("delete hrequests error with code : "+ error.description);
+    }
+  });
+  nhrequestQuery.find({
+    success: function(nhrequests) {
+      for(var j = 0; j < nhrequests.length; j++) {
+        nhrequests[j].destroy(null, {
+          success: function(nhrequest) {
+            alert("object delete successfully : "+nhrequest.id);
+          },
+          error: function(nhrequest, error) {
+            alert("delet "+nhrequest.id + " failed with err code : "+error.description);
+          }
+        });
+      }
+    },
+    error: function(nhrequest, error) {
+      alert("delete nhrequests error with code : "+ error.description);
+    }
+  });
   //TODO: delete all nhrequest and hrequst then delete the mission itself
   mission.destroy({
     success: function(mission) {      
-      alert('New object created with objectId: ' + mission.id);
+      alert('object deleted with objectId: ' + mission.id);
       res.redirect('/mission');
     },
     error: function(mission, error) {      
-      alert('Failed to create new object, with error code: ' + error.description);
+      alert('Failed to delete new object, with error code: ' + error.description);
       res.redirect('/mission');
     }
   });

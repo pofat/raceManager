@@ -3,6 +3,32 @@
   資源管理<small class="on-right"></small>
 </h1>
 
+
+
+
+
+<div class="example">
+<div class="tab-control" data-role="tab-control">
+  <ul class="tabs">
+      <li class="active"><a href="#_page_item">Tab 1</a></li>
+      <li><a href="#_page_human">Other Tab</a></li>
+  </ul>
+    <div class="frames">
+      <div class="frame" id="_page_item" style="display: block;">
+         <p>First Tab</p>
+      </div>
+      <div class="frame" id="_page_human" style="display: none;">
+         <p>Second Tab</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
 <% if(user.get("privilege") < 1) { %>
 <h2>物品資源管理</h2>
 
@@ -75,3 +101,5 @@
     });
   </script>
 <% } %>
+
+</div>

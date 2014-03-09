@@ -2,6 +2,7 @@ var _ = require('underscore');
 var Mission = Parse.Object.extend("mission");
 var hRequest = Parse.Object.extend("hrRequest");
 var nhRequest = Parse.Object.extend("nhrRequest");
+var nhResource = Parse.Object.extend('nhResource');
 var HumanResource = Parse.Object.extend("humanResource");
 //default project name
 var projectName = "2014東馬";
@@ -27,15 +28,44 @@ exports.index = function(req, res) {
   	res.redirect('/login');
   } 
 };
-//show creating ui
-exports.new = function(req, res) {
-    
+exports.listHreq = function(req, res) {
+  if(Parse.User.current()){
+    var query = new Parse.Query(hRequest);
+    var mission = new Mission();
+    mission.id = req.params.id;    
+    Parse.User.current().fetch().then(function(user) {
+      //result amount limit
+      query.limit(500);
+      query.equalTo("relatedMission", mission);
+      //sort
+      query.descending('createdAt');
+      query.find({
+        success: function(results){
+          for(var i = 0; i < results.length; i++){
+            if(typeof results[i].startTime != 'undefined')
+              results[i].startTime = results[i].startTime.toLocaleString();
+            if(typeof results[i].endTime != 'undefined')
+              results[i].endTime = results[i].startTime.toLocaleString();
+          }
+          res.send(results);
+        },
+        error: function(results){
+          res.send({});
+        }
+      });
+    });
+  }else{
+    res.redirect('/login');
+  } 
 };
 //create a new nhReauest
-//TODO:connect this hrquest to its own mission
+//TODO deal with date type
 exports.create = function(req, res){
   if(Parse.User.current()){
   	var hrequest = new hRequest();
+    var mission = new Mission();
+    //find parent mission
+    mission.id = req.params.id;
   	//add defualt project name to it
   	_.extend(req.body, {'project':projectName});
   	//change string to int
@@ -45,22 +75,22 @@ exports.create = function(req, res){
       req.body.numOfPpl = parseInt(req.body.numOfPpl);
   	req.body.fullyAssigned = false;
   	//TODO transfer startTime and endTime to date type
-    hrequest.save(_.pick(req.body, 'jobContent', 'numOfPpl', 'startTime', 'endTime', 'wageType', 'fullyAssigned', 'gatherLocation', 'workLoaction', 'project'), {
-      success: function(hrequest) {      
+
+    //hrequest.save(_.pick(req.body, 'jobContent', 'numOfPpl', 'startTime', 'endTime', 'wageType', 'fullyAssigned', 'gatherLocation', 'workLoaction', 'project'), {
+    hrequest.save(_.pick(req.body, 'jobContent', 'numOfPpl', 'wageType', 'gatherLocation', 'workLoaction', 'project', 'note'), {
+      success: function(hrequest) {
         alert('New object created with objectId: ' + hrequest.id);
-        var missionQuery = new Parse.Query(Mission);
-        missionQuery.get(req.params.mission_id).then(function(mission) {
-        	//link thie request to its parent mission
-        	hrequest.set("relatedMission", mission);
-        	hrequest.save().then(function(){
-        		//TODO need discuss
-        		res.redirect('/hrequest');
-        	});
-        });        
+        hrequest.set("relatedMission", mission);
+        mission.fetch().then(function(mission){
+          hrequest.set("group", mission.get("startGroup"));
+          console.log("mission group = "+mission.get("startGroup"));
+          hrequest.save();
+          res.send(hrequest);
+        });
       },
       error: function(hrequest, error) {      
         alert('Failed to create new object, with error code: ' + error.description);
-        res.redirect('/hrequest');
+        res.send({"success":false});
       }
     });    
   }else{
@@ -87,25 +117,44 @@ exports.show = function(req, res){
   }
 };
 //update a hrequest
-//TODO : update relatedHR not available
 exports.update = function(req, res){
   if(Parse.User.current()){
   	var hrequest = new hRequest();
-  	hrequest.id = req.params.id;
-  	hrequest.save(_.pick(req.body, 'jobContent', 'numOfPpl', 'startTime', 'endTime', 'wageType', 'fullyAssigned', 'gatherLocation', 'workLoaction', 'project')).then(function() {
-  	  res.redirect('/hrequest/'+hrequest.id);
+  	hrequest.id = req.body.id;
+  	//hrequest.save(_.pick(req.body, 'jobContent', 'numOfPpl', 'startTime', 'endTime', 'wageType', 'fullyAssigned', 'gatherLocation', 'workLoaction', 'project')).then(function() {
+      hrequest.save(_.pick(req.body, 'jobContent', 'numOfPpl', 'wageType', 'gatherLocation', 'workLoaction', 'note'), {
+  	  success: function(hrequest) {
+        alert('object update with objectId: ' + hrequest.id);
+        res.send(hrequest);        
+      },
+      error: function(hrequest, error) {      
+        alert('Failed to update object, with error code: ' + error.description);
+        res.send({"success":false});
+      }
   	});
   }else{
   	res.redirect('/login');
   }
 };
 //delete a hrequest
+//TODO also delete nhrequest point to this one
 exports.delete = function(req, res) {
-  var hrequest = new hRequest();
-  hrequest.id = req.params.id;  
-  hrequest.destroy().then(function(){
-    res.redirect('/hrequest');
-  });
+  if(Parse.User.current()){
+    var hrequest = new hRequest();
+    hrequest.id = req.body.id;
+    hrequest.destroy({
+      success: function(hrequest) {
+        alert("Success to delete object : "+hrequest.id);
+        res.send({'success':true});
+      },
+      error: function(hrequest, error) {
+        alert("fail to delete object , with error code : "+error.description);
+        res.send({'success':false});
+      }
+    });
+  }else{
+    
+  }
 };
 
 //create a human resource
@@ -227,3 +276,71 @@ exports.updateResource = function(req, res){
     res.redirect('/login');
   }
 };
+
+//link hreq to nhreq
+exports.linkReq = function(req, res) {
+  if(Parse.User.current()){
+    var hrequest = new hRequest();
+    var itemQuery = new Parse.Query(nhResource);
+    itemQuery.limit(200);
+    itemQuery.descending('createdAt');
+    hrequest.id = req.query.reqId;
+    Parse.User.current().fetch().then(function(user) {
+    hrequest.fetch().then(function(result){
+      itemQuery.find().then(function(item) {
+        res.render("request/linkReq", {
+          result:result,
+          item:item
+        });
+      });
+    });
+    });
+  }else{
+    res.redirect('/login');
+  }
+};
+//create nhrequest and then update link relation
+//TODO nhrequest must point to its parent mission
+exports.updateReqlink = function(req, res) {
+  if(Parse.User.current()){
+    var hrequest = new hRequest();
+    hrequest.id = req.params.id;
+    for(var i = 0; i < req.body.itemName.length; i++){
+      var nhrequest = new nhRequest();
+      if(isNaN(parseInt(req.body.amount[i]))){
+        req.body.amount[i] = 0;
+      }else{
+        req.body.amount[i] = parseInt(req.body.amount[i]);
+      }
+        
+      nhrequest.save({"itemName":req.body.itemName[i], "amount":req.body.amount[i], "location":req.body.location[i], "note":req.body.note[i]}, {
+        success: function(nhrequest){
+          alert("create new object with id : "+nhrequest.id);
+          hrequest.set("relatedNhReq", nhrequest);
+          hrequest.save();
+        },
+        error: function(nhrequest, error){
+          alert("fail to creat object with error code: "+ error.description);
+        }
+      });
+    }
+    //todo need better redirection
+    res.redirect('/mission');
+  }else{
+    res.redirect('/login');
+  }
+};
+//ui for link hreq and hres
+exports.linkRes = function(req, res) {
+  if(Parse.User.current()){
+    var hrequest = new hRequest();
+    var hresQuery = new Parse.Query(HumanResource);
+    hrequest.id = req.body.assignId;
+    Parse.User.current().fetch().then(function(user) {
+      res.send("yest");
+    });
+  }else{
+    res.redirect('/login');
+  }
+};
+

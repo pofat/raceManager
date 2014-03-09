@@ -1,0 +1,227 @@
+	<style type="text/css">
+		.cart{
+			position:fixed;
+			right:0;
+			top:45px;
+			width:45%;
+			height:100%;
+			padding:0px 10px;
+		}
+	</style>
+	<script>
+		var data = {"total":0,"rows":[]};
+		var totalCost = 0;
+
+		function updateActions(index){
+				$('#itemppl').datagrid('updateRow',{
+					index: index,
+					row:{}
+				});
+			}
+			function getRowIndex(target){
+				var tr = $(target).closest('tr.datagrid-row');
+				return parseInt(tr.attr('datagrid-row-index'));
+			}
+			function editrow(target){
+				$('#itemppl').datagrid('beginEdit', getRowIndex(target));
+			}
+			function deleterow(target){
+				$('#itemppl').datagrid('deleteRow', getRowIndex(target));
+			}
+			function saverow(target){
+				$('#itemppl').datagrid('endEdit', getRowIndex(target));
+			}
+			function cancelrow(target){
+				$('#itemppl').datagrid('cancelEdit', getRowIndex(target));
+			}
+
+
+		
+		$(function(){
+			$('#itemppl').datagrid({
+				singleSelect:true,
+				fitColumns:true,
+				columns:[[
+					{field:'itemName', title:'品名', width:100},
+					{field:'amount', title:'數量', width:50,
+						editor:{
+							type:'numberbox',
+							required:true
+						}
+					},
+					{field:'location', title:'使用地點', width:90, editor:'text'},
+					{field:'note', title:'備註', width:100, editor:'text'},
+					{field:'action', title:'動作', width:30, 
+					  formatter:function(value, row , index) {
+						if(row.editing){
+							var s = '<a href="#" onclick="saverow(this)"><i class="icon-checkmark fg-red on-right on-left"></i></a>';
+							var c = '<a href="#" onclick="cancelrow(this)"><i class="icon-cancel on-right on-left"></i></a>';
+							return s+c;
+						}else{
+							var e = '<a href="#" onclick="editrow(this)"><i class="icon-pencil on-right on-left"></i></a> ';
+							var d = '<a href="#" onclick="deleterow(this)"><i class="icon-cancel-2 on-right on-left"></i></a>'
+							return e+d;
+						}
+					  }
+					}
+				]],
+				onBeforeEdit:function(index,row){
+                	row.editing = true;
+            		updateActions(index);
+        		},
+        		onAfterEdit:function(index,row){
+            		row.editing = false;
+            		updateActions(index);
+        		},
+        		onCancelEdit:function(index,row){
+            		row.editing = false;
+            		updateActions(index);
+        		}
+			});
+			
+			$('.item').draggable({
+				revert:true,
+				proxy:'clone',
+				onStartDrag:function(){
+					$(this).draggable('options').cursor = 'not-allowed';
+					$(this).draggable('proxy').css('z-index',10);
+				},
+				onStopDrag:function(){
+					$(this).draggable('options').cursor='move';
+				}
+			});
+			$('.cart').droppable({
+				onDragEnter:function(e,source){
+					$(source).draggable('options').cursor='auto';
+				},
+				onDragLeave:function(e,source){
+					$(source).draggable('options').cursor='not-allowed';
+				},
+				onDrop:function(e,source){
+					var itemName = $(source).find('td:eq(1)').html();
+		                        var amount = $(source).find('td:eq(2)').html();
+		                        var location = $(source).find('td:eq(3)').html();
+		                        var note = $(source).find('td:eq(4)').html();
+					addProduct(itemName, 1.0);
+				}
+			});
+                        $('.item').droppable({
+                                accept:'.assigned',
+                                onDragEnter:function(e,source){
+                                        $(source).addClass('trash');
+                                },
+                                onDragLeave:function(e,source){
+                                        $(source).removeClass('trash');
+                                },
+                                onDrop:function(e,source){
+                                        $(source).remove();
+                                }
+                        });
+         
+
+
+		});
+		
+		function addProduct(name,price, location, note){
+			function add(){
+				for(var i=0; i<data.total; i++){
+					var row = data.rows[i];
+					if (row.itemName == name){
+						row.amount += 1;
+						return;
+					}
+				}
+				data.total += 1;
+				data.rows.push({
+					itemName:name,
+					amount:1,
+					location:"",
+					note:""
+				});
+			}
+			add();
+			$('#itemppl').datagrid('loadData', data);
+		}
+
+		//double click event
+		$('#itemppl').datagrid({
+		  onDblClickCell:function(index, field, vlaue) {
+		    console.log("field:"+field);
+		    console.log("index:"+index);
+		  }
+		});
+		//generate form and submit them
+		function submitForm(){
+			var innerHTML="";
+			for(var i = 0; i < data.total; i++){
+				innerHTML += "<input type='hidden' name='itemName' value='" + data.rows[i].itemName + "' />";
+				innerHTML += "<input type='hidden' name='amount' value='" + data.rows[i].amount + "' />";
+				innerHTML += "<input type='hidden' name='location' value='" + data.rows[i].location + "' />";
+				innerHTML += "<input type='hidden' name='note' value='" + data.rows[i].note + "' />";
+			}
+			console.log(innerHTML);
+			document.getElementById("formContent").innerHTML = innerHTML;
+			$('#itemnppl').submit();
+		}
+	</script>
+
+	<div>
+		<h1><a href="javascript: history.go(-1)"><i class="icon-arrow-left-3 fg-darker smaller"></i></a>物資清單</h1>
+		<div style="background:#fff">
+		<table class="table hovered border" style="width:50%">
+		  <thead>
+		      <th class="text-left">類別</th>
+		      <th class="text-left">品名</th>
+		      <th class="text-left">規格</th>
+		      <th class="text-left">單位</th>
+		      <th class="text-left">備註</th>
+		    </tr>
+		  </thead>
+		  <% for(var i = 0; i < item.length; i++) { %>
+		     <tr class="item">
+		       <td><%= item[i].get("type") %></td>
+		       <td><%= item[i].get("itemName") %></td>
+		       <td><%= item[i].get("size") %></td>
+		       <td><%= item[i].get("unit") %></td>
+		       <td><%= item[i].get("note") %></td>
+    	</tr>
+    <% } %>
+
+  </table>
+
+
+
+
+		</div>
+	</div>
+
+
+	<div class="cart bg-lime">
+		<h1>配對人力需求</h1>
+		<div>
+		<table class="table stripped" style="width:80%">
+		  <tr>
+		  	<td>工作內容</td>
+		  	<td>需求人數</td>
+		  	<td>工作地點</td>
+		  	<td>備註</td>
+		  </tr>
+		  <tr>
+		  	<td><%= result.get("jobContent") %></td>
+		  	<td><%= result.get("numOfPpl") %></td>
+		  	<td><%= result.get("workLocation") %></td>
+		  	<td><%= result.get("note") %></td>
+		  </tr>
+		</table>
+		<h1>每人需要物品為</h1>
+		<table id="itemppl" class="table hovered bordered"></table>
+		</div>
+		<button class="primary large margin5" type="button" onClick="submitForm();">儲存資料</button>
+		
+	</div>
+
+
+	<form id="itemnppl" method="post" action="/linkUpdate/<%= result.id %>">
+		<div id="formContent">
+		</div>
+	</form>

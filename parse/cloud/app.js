@@ -165,28 +165,39 @@ app.post('/mission', missionController.create);
 app.get('/mission/:id', missionController.show);
 app.put('/mission/:id', missionController.update);
 app.post('/mission/updateContent/:id', missionController.updateContent);
-//app.post('/mission/edit', missionController.update);
 app.del('/mission/:id', missionController.delete);
-//app.post('/mission/del', missionController.delete);
 app.get('/getMission', missionController.showMission);//for easyui
 
 //routes for reqeusts
 app.get('/nhrequest', nhrController.index);
 app.get('/nhrequest/edit', nhrController.new);//return type and itemName
-app.post('/mission/:mission_id/nhrequest', nhrController.create);
+//app.post('/mission/:mission_id/nhrequest', nhrController.create);
 app.get('/nhrequest/:id', nhrController.show);
-app.put('/nhrequest/:id', nhrController.update);
+//app.put('/nhrequest/:id', nhrController.update);
 app.del('/nhrequest/:id', nhrController.delete);
+//for easyui query
+app.post('/mission/:id/showNhreq', nhrController.listNhreq);
+app.post('/mission/:id/nhwNhreq', nhrController.create);
+app.post('/NhreqUpdate', nhrController.update);
 //app.post('/mission/:mission_id/nhrequest', nhrController.newLink);
 //app.put('/nhrequest/:id/link', nhrController.updateLink);
 
-app.get('/hrequest', hrController.index);
-app.get('/hrequest/edit', hrController.new);//hrqeust create ui page
-app.post('/mission/:mission_id/hrequest', hrController.create);
-app.get('/hrequest/:id', hrController.show);
-app.put('/hrequest/:id', hrController.update);
-app.del('/hrequest/:id', hrController.delete);
 
+//routes for human req
+app.get('/hrequest', hrController.index);
+//app.get('/hrequest/edit', hrController.new);//hrqeust create ui page
+//app.post('/mission/:mission_id/hrequest', hrController.create);
+app.get('/hrequest/:id', hrController.show);
+//app.put('/hrequest/:id', hrController.update);
+//app.del('/hrequest/:id', hrController.delete);
+//hrequest for jeasyui
+app.post('/mission/:id/showHreq', hrController.listHreq);
+app.post('/mission/:id/newHreq', hrController.create);
+app.post('/hreqUpdate', hrController.update);
+app.post('/delHreq', hrController.delete);
+app.get('/linkHreq', hrController.linkReq);
+app.post('/linkUpdate/:id', hrController.updateReqlink);
+app.post('/linkHres', hrController.linkRes);
 //routes for human resource
 app.post('/hr', hrController.createResource);
 //app.get('/hr/:id', hrController.showResource);
@@ -208,6 +219,12 @@ app.post('/admin/delHres', adminController.delHresource);
 //routes for querys
 app.get('/query', queryController.index);
 
+
+//test
+app.post('/test', function(req, res){
+  console.log(req.body);
+  res.send(req.body);
+})
 //app.post('/query/hresource', hrController.queryResource);
 
 //endpoints

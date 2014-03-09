@@ -2,6 +2,7 @@
 
 <center>
   <h1><%= missions[0].get("startGroup")%>的任務</h1>
+  <br>
   <div class="bg-lime">
   <table class="table hovered border">
     <thead>
@@ -45,10 +46,45 @@
 
   </table>
   </div>
-  <br>
-  <!-- example of creating a new mission -->
-  <script src="/javascripts/metro-calendar.js"></script>
+
+ <script src="/javascripts/metro-calendar.js"></script>
   <script src="/javascripts/metro-datepicker.js"></script>
+<div class="accordion with-marker span4 margin10" data-role="accordion">
+    <div class="accordion-frame">
+      <a class="heading" href="#">新增任務</a>
+      <div class="content">
+        <form method="post" action="/mission">          
+          <div class="input-control text size3" data-role="input-control">
+            <input name="missionName" type="text" placeholder="任務名稱">
+          </div>
+          <div class="input-control text size3" data-role="input-control">
+            <input name="missionContent" type="text" placeholder="任務內容"/>
+          </div>
+          <div class="input-control text size3 info-state" data-role="input-control">
+            <input name="startGroup" type="text" value="<%= missions[0].get("startGroup") %>" readonly="readonly">
+          </div>
+          <div class="input-control text size3 info-state" data-role="input-control">
+            <input name="starter" type="text" value="<%= Parse.User.current().get("fullName") %>" readonly="readonly">
+          </div>
+          <div class="input-control text size3" data-role="input-control">
+            <input name="note" type="text" placeholder="備註"/>
+          </div> 
+          <label>任務截止日期</label>
+          <div class="input-control text" data-role="datepicker" data-week-start="1" data-date="2014-03-15" data-effect="slide">
+              <input name="deadLine" type="text" readonly="readonly">
+              <button class="btn-date" type="button"></button>
+          </div>
+          <button class="primary medium margin5" type="submit">新建任務</button>
+        </form>
+      </div>
+    </div>
+</div>
+
+
+
+  <br>
+ <!--
+ 
   <form action='/mission' method='post'>
     <div class="input-control text size3" data-role="input-control">
       <input name="missionName" type="text" placeholder="任務名稱">
@@ -81,6 +117,7 @@
     </div>
     
   </form>
+  -->
 </center>
 
 
