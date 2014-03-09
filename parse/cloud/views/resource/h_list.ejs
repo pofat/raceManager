@@ -1,0 +1,25 @@
+
+  <table class="table hovered border myClass">
+    <tr>
+      <th>姓名</th>
+      <th>單位</th>
+      <th>系級</th>
+      <th>電話</th>
+      <th>email</th>
+      <th>組別</th>
+      <th>備註</th>
+    </tr>
+    <% for(var i =0; i < list.length; i++) { %>
+    <tr>
+      <td><%= list[i].get("name") %></td>
+      <td><%= list[i].get("office") %></td>
+      <td><%= list[i].get("department") %></td>
+      <td><%= list[i].get("tel") %></td>
+      <td><%= list[i].get("email") %></td>
+      <td><%= list[i].get("group") %></td>
+      <td><%= list[i].get("note") %></td>
+      <input type='hidden' name='_id' value='<%= list[i].id %>' />
+    </tr>
+    <% } %>
+
+  </table>

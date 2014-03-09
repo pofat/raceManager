@@ -1,0 +1,5 @@
+<!-- test for showing nhrequests -->
+<h2><%= nhrequests.length %>筆需求</h2>
+<% for(var i = 0; i < nhrequests.length; i++){ %>
+<%= nhrequests[i].get("itemName") %>;
+<% } %>

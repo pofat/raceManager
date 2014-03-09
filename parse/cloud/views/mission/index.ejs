@@ -1,0 +1,199 @@
+<!-- show all corresponding missions here -->
+
+<center>
+  <h1><%= missions[0].get("startGroup")%>的任務</h1>
+  <div class="bg-lime">
+  <table class="table hovered border">
+    <thead>
+    <tr>
+      <th class="text-left">No.</th>
+      <th class="text-left">任務名稱</th>
+      <th class="text-left">任務說明</th>
+      <th class="text-left">發起人</th>
+      <th class="text-left">截止日期</th>
+      <th class="text-left">備註</th>
+      <th class="text-left">人力需求筆數</th>
+      <th class="text-left">物資需求筆數</th>
+      <th class="text-left">編緝</th>
+    </tr>
+    </thead>
+    <% for(var i = 0; i < missions.length; i++) { %>
+    <tr>
+      <td><%= i %></td>
+      <td><%= missions[i].get("missionName") %></td>
+      <td><%= missions[i].get("missionContent") %></td>
+      <td><%= missions[i].get("starter") %></td>
+      <td>
+        <% if(typeof missions[i].get("deadLine") != 'undefined'){ %>
+          <%= missions[i].get("deadLine").getFullYear() %>-<%= missions[i].get("deadLine").getMonth()+1 %>-<%= missions[i].get("deadLine").getDate() %>
+        <% } %>
+      </td>
+      <td><%= missions[i].get("note") %></td>
+      <td>undone</td>
+      <td>undone</td>
+      <td>
+        <a class="tile half bg-darkRed" href="/mission/<%= missions[i].id %>">
+          <div class="tile-content icon">
+            <i class="icon-pencil"></i>
+          </div>
+        </a>
+      </td>
+      <!-- this is information of mission object id, just to infrom that there must be this information in the form -->
+      <input type='hidden' name='_id' value='<%= missions[i].id %>' />
+    </tr>
+    <% } %>
+
+  </table>
+  </div>
+  <br>
+  <!-- example of creating a new mission -->
+  <script src="/javascripts/metro-calendar.js"></script>
+  <script src="/javascripts/metro-datepicker.js"></script>
+  <form action='/mission' method='post'>
+    <div class="input-control text size3" data-role="input-control">
+      <input name="missionName" type="text" placeholder="任務名稱">
+    </div>
+    <div class="input-control text size3" data-role="input-control">
+      <input name="missionContent" type="text" placeholder="任務內容"/>
+    </div>
+    <div class="input-control text size3 info-state" data-role="input-control">
+      <input name="startGroup" type="text" value="<%= missions[0].get("startGroup") %>" readonly="readonly">
+    </div>
+    <div class="input-control text size3 info-state" data-role="input-control">
+      <input name="starter" type="text" value="<%= Parse.User.current().get("fullName") %>" readonly="readonly">
+    </div>
+    <div class="input-control text size3" data-role="input-control">
+      <input name="note" type="text" placeholder="備註"/>
+    </div>    
+    <div class="example1">
+      <div class="grid ">
+        <div class="row">
+          <h4>任務截止日期：</h4>
+          <div class="span3">
+            <div class="input-control text" data-role="datepicker" data-week-start="1" data-date="2014-03-15" data-effect="slide">
+              <input name="deadLine" type="text" readonly="readonly">
+              <button class="btn-date" type="button"></button>
+            </div>                          
+            <div class="span3"><button class="primary medium margin5" type="submit">新建任務</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </form>
+</center>
+
+
+
+
+
+
+
+
+
+<!--
+  <br>
+        <script>
+             var url;
+                function newUser(){
+                        $('#dlg').dialog('open').dialog('setTitle','New User');
+                        $('#fm').form('clear');
+                        url = '/mission';
+                }
+                function editUser(){
+                        var row = $('#dg').datagrid('getSelected');
+                        if (row){
+                                $('#dlg').dialog('open').dialog('setTitle','Edit User');
+                                $('#fm').form('load',row);
+                                url = 'update_user.php?id='+row.id;
+                        }
+                }
+              function saveUser(){
+                        $('#fm').form('submit',{
+                                url: url,
+                                onSubmit: function(){
+                                        return $(this).form('validate');
+                                },
+                                success: function(result){
+                                        var result = eval('('+result+')');
+                                        if (result.success){
+                                                $('#dlg').dialog('close');              // close the dialog
+                                                $('#dg').datagrid('reload');    // reload the user data
+                                        } else {
+                                                $.messager.show({
+                                                        title: 'Error',
+                                                        msg: result.msg
+                                                });
+                                        }
+                                }
+                        });
+                }
+               function removeUser(){
+                        var row = $('#dg').datagrid('getSelected');
+                        if (row){
+                                $.messager.confirm('Confirm','Are you sure you want to remove this user?',function(r){
+                                        if (r){
+                                                $.post('/mission/del',{id:row.objectId},function(result){
+                                                        if (result.success){
+                                                                $('#dg').datagrid('reload');    // reload the user data
+                                                        } else {
+                                                                $.messager.show({       // show error message
+                                                                        title: 'Error',
+                                                                        msg: result.msg
+                                                                });
+                                                        }
+                                                },'json');
+                                        }
+                                });
+                        }
+                }
+        </script>
+
+        <table id="dg" title="My Users" class="easyui-datagrid" style="width:700px;height:250px"
+                        url="/admin/showNhr"
+                        toolbar="#toolbar" pagination="true"
+                        rownumbers="true" fitColumns="true" singleSelect="true">
+                <thead>
+                        <tr>
+                                <th field="itemName" width="50">Mission name</th>
+                                <th field="size" width="50">Mission Content</th>
+                                <th field="type" width="50">starter</th>
+                                <th field="source" width="50">note</th>
+                        </tr>
+                </thead>
+        </table>
+        <div id="toolbar">
+                <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New User</a>
+		   <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit User</a>
+		      <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="removeUser()">Remove User</a>
+        </div>
+
+     <div id="dlg" class="easyui-dialog" style="width:400px;height:280px;padding:10px 20px"
+                        closed="true" buttons="#dlg-buttons">
+                <div class="ftitle">新建任務</div>
+		     <form id="fm" action='/mission' method="post" novalidate>
+                        <div class="fitem">
+                                <label>任務名稱:</label>
+                                <input name="missionName" class="easyui-validatebox" required="true">
+                        </div>
+                        <div class="fitem">
+                                <label>任務內容:</label>
+                                <input name="missionContent" class="easyui-validatebox" required="true">
+                        </div>
+                        <div class="fitem">
+                                <label>起始時間:</label>
+                                <input name="starter">
+                        </div>
+                        <div class="fitem">
+                                <label>結束時間:</label>
+                                <input name="deadLine" class="easyui-validatebox">
+                        </div>
+                </form>
+        </div>
+        <div id="dlg-buttons">
+                <a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="saveUser()">新建任務</a>
+                <a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')">取消</a>
+        </div>  
+
+-->
+

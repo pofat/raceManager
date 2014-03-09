@@ -1,0 +1,141 @@
+<!-- show specific mission content here, following just test example -->
+<h1>
+  <a href="javascript: history.go(-1)"><i class="icon-arrow-left-3 fg-darker smaller"></i></a>
+  <%= mission.get("missionName") %><small class="on-right">由<%= mission.get("startGroup") %>的<%= mission.get("starter") %>發起</small>
+</h1>
+
+<h2>任務內容</h2>
+<p class="description"><input type="text" id="missionContent" value="<%= mission.get("missionContent") %>" /></p>
+ <style type="text/css"> 
+  #missionContent {
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: none;
+  }
+
+  #missionContent.focus {
+    border: 1px solid #000;
+  }
+</style>
+<script type="text/javascript">
+  $('#missionContent').focus( function() {
+    $(this).addClass('focus');
+  }).blur( function() {
+    $(this).removeClass('focus');
+    $.post("/mission/updateContent/<%= mission.id %>", {"missionContent":$(this).value}, function(results){
+      if(!results.successs){
+        $(this).value=<%= mission.get("missionContent") %>;
+        $.Notify({
+          style: {backgournd: 'red', color: 'white'},
+          shadow: true,
+          position: 'bottom-right',
+          content: "更新內容失敗!!!"
+        });
+      }
+    });
+  });
+</script>
+
+<!-- delete test -->
+<form action="<%= '/mission/' + mission.id %>" method='post'>
+  <!-- you need following hidden tag to overwrite post method into del -->
+  <input type='hidden' name='_method' value='delete' />
+  <button class="danger large" type="submit" disable>刪除任務</button>  
+</form>
+
+<!-- update example -->
+<form action="<%= '/mission/' + mission.id %>" method='post'>
+  <!-- you need following hidden tag to overwrite post method into put for update usage -->
+  <input type='hidden' name='_method' value='put' />
+  <button class="danger large" type="submit" disable>儲存任務</button>  
+</form>
+
+<br>
+<div>
+<div class="tab-control" data-role="tab-control" data-effect="fade">
+  <ul class="tabs">
+    <li class="active"><a href="#_page_1">人力需求</a></li>
+    <li class=""><a href="#_page_2">物資需求</a></li>
+    <li class=""><a href="#_page_3"><i class="icon-share-2"></i>配發人力需求之物資</a></li>
+  </ul>
+
+  <div class="frames">
+    <div class="frame" id="_page_1">
+      <h4>人力需求管理</h4>
+      <table id="hresmanage" title="人力需求列表" style="width:550px;height:450px"
+        toolbar="#toolbar" idField="objectId" pagination="true"
+        rownumbers="true" fitColumns="true" singleSelect="true">
+        <thead>
+          <tr>
+            <th field="jobContent" width="50" editor="{type:'validatebox',options:{required:true}}">工作內容</th>
+            <th field="numOfPpl" width="50" editor="{type:'validatebox',options:{required:true}}">人數</th>
+            <th field="size" width="50" editor="text">規格</th>
+            <th field="unit" width="50" editor="text">單位</th>
+            <th field="unitPrice" width="50" editor="text">單價</th>
+            <th field="source" width="50" editor="text">物品來源</th>
+            <th field="deliverer" width="50" editor="text">運送人員</th>
+          </tr>
+        </thead>
+      </table>
+      <div id="toolbar">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="javascript:$('#hresmanage').edatagrid('addRow')">New</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="javascript:$('#hresmanage').edatagrid('destroyRow')">Destroy</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="javascript:$('#hresmanage').edatagrid('saveRow')">Save</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="javascript:$('#hresmanage').edatagrid('cancelRow')">Cancel</a>
+      </div>
+      <script type="text/javascript">
+        $(function(){
+          $('#hresmanage').edatagrid({
+            url: '/admin/showNhres',
+            saveUrl: '/nhr',
+            updateUrl: '/nhrUpdate',
+            destroyUrl: '/admin/delNhres'
+          });
+        });
+      </script>
+
+    </div>
+
+    <div class="frame" id="_page_2">
+      <h4>物資需求管理</h4>
+      <table id="resmanage" title="物資需求列表（只顯示沒與人力配對之結果）" style="width:550px;height:450px"
+        toolbar="#r_toolbar" idField="objectId" pagination="true"
+        rownumbers="true" fitColumns="true" singleSelect="true">
+        <thead>
+          <tr>
+            <th field="itemName" width="50" editor="{type:'validatebox',options:{required:true}}">物品名稱</th>
+            <th field="amount" width="50" editor="{type:'validatebox',options:{required:true}}">數量</th>
+            <th field="personIncharge" width="50" editor="text">負責人</th>
+            <th field="ownType" width="50" editor="text">物品性質</th>
+            <th field="source" width="50" editor="text">來源</th>
+            <th field="location" width="50" editor="text">地點</th>
+            <th field="note" width="50" editor="text">備註</th>
+          </tr>
+        </thead>
+      </table>
+      <div id="r_toolbar">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="javascript:$('#resmanage').edatagrid('addRow')">New</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="javascript:$('#resmanage').edatagrid('destroyRow')">Destroy</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="javascript:$('#resmanage').edatagrid('saveRow')">Save</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="javascript:$('#resmanage').edatagrid('cancelRow')">Cancel</a>
+      </div>
+      <script type="text/javascript">
+        $(function(){
+          $('#resmanage').edatagrid({
+            url: '/admin/showNhres',
+            saveUrl: '/nhr',
+            updateUrl: '/nhrUpdate',
+            destroyUrl: '/admin/delNhres'
+          });
+        });
+      </script>
+    </div>
+
+    <div class="frame" id="_page_3">
+      <p>這裡是連結頁面</p>
+    </div>
+  </div>
+
+</div>
+</div>

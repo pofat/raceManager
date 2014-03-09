@@ -1,0 +1,77 @@
+<h1>
+  <a href="javascript: history.go(-1)"><i class="icon-arrow-left-3 fg-darker smaller"></i></a>
+  資源管理<small class="on-right"></small>
+</h1>
+
+<% if(user.get("privilege") < 1) { %>
+<h2>物品資源管理</h2>
+
+<table id="dg" title="可用資源列表" style="width:550px;height:450px"
+        toolbar="#toolbar" idField="objectId" pagination="true"
+        rownumbers="true" fitColumns="true" singleSelect="true">
+    <thead>
+        <tr>
+            <th field="itemName" width="50" editor="{type:'validatebox',options:{required:true}}">物品名稱</th>
+            <th field="type" width="50" editor="{type:'validatebox',options:{required:true}}">類別</th>
+            <th field="size" width="50" editor="text">規格</th>
+            <th field="unit" width="50" editor="text">單位</th>
+            <th field="unitPrice" width="50" editor="text">單價</th>
+            <th field="source" width="50" editor="text">物品來源</th>
+            <th field="deliverer" width="50" editor="text">運送人員</th>
+        </tr>
+    </thead>
+</table>
+<div id="toolbar">
+    <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="javascript:$('#dg').edatagrid('addRow')">New</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="javascript:$('#dg').edatagrid('destroyRow')">Destroy</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="javascript:$('#dg').edatagrid('saveRow')">Save</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="javascript:$('#dg').edatagrid('cancelRow')">Cancel</a>
+</div>
+<script type="text/javascript">
+    $(function(){
+      $('#dg').edatagrid({
+        url: '/admin/showNhres',
+        saveUrl: '/nhr',
+        updateUrl: '/nhrUpdate',
+        destroyUrl: '/admin/delNhres'
+      });
+    });
+  </script>
+
+<% } %>
+
+<% if(user.get("privilege") < 2 ) { %>
+<h2>人力資源管理</h2>
+
+<table id="hg" title="人力名單清冊" style="width:550px;height:450px"
+        toolbar="#h_toolbar" idField="objectId" pagination="true"
+        rownumbers="true" fitColumns="true" singleSelect="true">
+    <thead>
+        <tr>
+            <th field="name" width="50" editor="{type:'validatebox',options:{required:true}}">姓名</th>
+            <th field="type" width="50" editor="{type:'validatebox',options:{required:true}}">工作性質</th>
+            <th field="office" width="50" editor="text">人力來源</th>
+            <th field="department" width="50" editor="text">系級/部門</th>
+            <th field="tel" width="50" editor="text">電話</th>
+            <th field="email" width="50" editor="text">e-mail</th>
+            <th field="group" width="50" editor="text">組別</th>
+        </tr>
+    </thead>
+</table>
+<div id="h_toolbar">
+    <a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="javascript:$('#hg').edatagrid('addRow')">New</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="javascript:$('#hg').edatagrid('destroyRow')">Destroy</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-save" plain="true" onclick="javascript:$('#hg').edatagrid('saveRow')">Save</a>
+    <a href="#" class="easyui-linkbutton" iconCls="icon-undo" plain="true" onclick="javascript:$('#hg').edatagrid('cancelRow')">Cancel</a>
+</div>
+<script type="text/javascript">
+    $(function(){
+      $('#hg').edatagrid({
+        url: '/admin/showHres',
+        saveUrl: '/hr',
+        updateUrl: '/hrUpdate',
+        destroyUrl: '/admin/delHres'
+      });
+    });
+  </script>
+<% } %>

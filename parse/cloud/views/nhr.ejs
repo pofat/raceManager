@@ -1,0 +1,181 @@
+<% if(requirer != "") { %>
+<h1><%= requirer %>需求清單</h1>
+<% } else { %>
+<h1>器材設備清單</h1>
+<% } %>
+
+<nav class="horizontal-menu">
+  <ul>
+    <li>
+      <a class="dropdown-toggle" href="#">清單過濾器</a>
+      <ul class="dropdown-menu" data-show="hover" data-role="dropdown">
+        <li>
+          <div class="dropdown-toggle">按需求之組別</div>
+          <ul class="dropdown-menu" data-show="hover">            
+            <li><a href="/">全部組別</a></li>
+            <li class="divider"></li>
+            <!-- for loop here -->
+            <% for(var i = 0; i < groups.length; i++) { %>
+            	<li><a href="/?group=<%= groups[i] %>"><%= groups[i] %></a></li>            
+            <% } %>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+<% for(var k = 0; k < locs.length; k++) { %>
+  <h2><strong><%= locs[k] %></strong></h2>
+
+  <!--
+  <div class="accordion with-marker span4 place-left margin10" data-role="accordion">
+  	<div class="accordion-frame">
+      <a class="heading" href="#">新增資源</a>
+      <div class="content">
+        <form method="post" action="/add">
+          <div class="input-control select">
+            <label>類型</label>
+            <select name="type">
+              <% for(var l = 0; l < types.length; l++) { %>
+                <option value="<%= types[l] %>"><%= types[l] %></option>              
+              <% } %>
+            </select>
+          </div>
+          <div class="input-control text size3" data-role="input-control">
+            <input name="resource_name" type="text" placeholder="資源名稱"></input>
+            <input name="quantity" type="text" placeholder="數量"></input>          
+            <input name="unit" type="text" placeholder="單位"></input>
+            <input name="unit_price" type="text" placeholder="單價"></input>          
+            <input name="location" type="text" value="<%= locs[k] %>" readonly="readonly"></input>
+          </div>
+          <div class="input-control select">
+            <label>需求單位</label>
+          	<select name="requirer">              
+                <option value="客服組">客服組</option>
+                <option value="場地組">場地組</option>
+                <option value="資訊組">資訊組</option>
+                <option value="交通組">交通組</option>
+                <option value="獎典組">獎典組</option>
+                <option value="裁判組">裁判組</option>
+                <option value="醫護組">醫護組</option>
+                <option value="後勤組">後勤組</option>
+            </select>            
+            <label>供應單位</label>
+          	<select name="person_incharge">              
+                <option value="客服組">客服組</option>
+                <option value="場地組">場地組</option>
+                <option value="資訊組">資訊組</option>
+                <option value="交通組">交通組</option>
+                <option value="獎典組">獎典組</option>
+                <option value="裁判組">裁判組</option>
+                <option value="醫護組">醫護組</option>
+                <option value="後勤組">後勤組</option>
+            </select>
+          </div>
+          <div class="input-control text size3" data-role="input-control">            
+            <input name="source" type="text" placeholder="資源來源，例：雷譜或poker"></input>          
+            <input name="deadline" type="text" value="2014-3-14"></input>          
+            <input name="note" type="text" placeholder="備註"></input>
+          </div>
+          <button class="primary large margin5" type="submit">新增</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="accordion with-marker span4 place-left margin10" data-role="accordion">
+  	<div class="accordion-frame">
+      <a class="heading" href="#">編緝資源</a>
+      <div class="content">
+        <form method="post" action="/modify">
+          <div class="input-control select">
+            <label>類型</label>
+            <select name="type">
+              <% for(var l = 0; l < types.length; l++) { %>
+                <option value="<%= types[l] %>"><%= types[l] %></option>              
+              <% } %>
+            </select>
+          </div>
+          <div class="input-control text size3" data-role="input-control">
+            <input name="resource_name" type="text" placeholder="資源名稱"></input>
+            <input name="quantity" type="text" placeholder="數量"></input>          
+            <input name="unit" type="text" placeholder="單位"></input>
+            <input name="unit_price" type="text" placeholder="單價"></input>          
+            <input name="location" type="text" value="<%= locs[k] %>" readonly="readonly"></input>
+          </div>
+          <div class="input-control select">           
+            <label>需求單位</label>
+          	<select name="requirer">              
+                <option value="客服組">客服組</option>
+                <option value="場地組">場地組</option>
+                <option value="資訊組">資訊組</option>
+                <option value="交通組">交通組</option>
+                <option value="獎典組">獎典組</option>
+                <option value="裁判組">裁判組</option>
+                <option value="醫護組">醫護組</option>
+                <option value="後勤組">後勤組</option>
+            </select>            
+            <label>供應單位</label>
+          	<select name="person_incharge">              
+                <option value="客服組">客服組</option>
+                <option value="場地組">場地組</option>
+                <option value="資訊組">資訊組</option>
+                <option value="交通組">交通組</option>
+                <option value="獎典組">獎典組</option>
+                <option value="裁判組">裁判組</option>
+                <option value="醫護組">醫護組</option>
+                <option value="後勤組">後勤組</option>
+            </select>
+          </div>
+          <div class="input-control text size3" data-role="input-control">            
+            <input name="source" type="text" placeholder="資源來源，例：雷譜或poker"></input>          
+            <input name="deadline" type="text" value="2014-3-14"></input>          
+            <input name="note" type="text" placeholder="備註"></input>
+          </div>
+          <div>
+            <button class="primary large" type="submit" disabled>更新</button>
+            <button class="danger large" type="submit" disabled>刪除</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  -->
+
+
+  <table class="table hovered border myClass">
+    <thead>
+    <tr>
+      <th>類型</th>
+      <th class="text-left">物資名稱</th>
+      <th>數量</th>
+      <th>單位</th>
+      <% if(requirer == "") { %>
+      <th>需求者</th>
+      <% } %>        
+      <th>負責人</th>        
+      <th>備註</th>
+    </tr>
+    </thead>
+  <% for(var j = 0; j<results.length; j++) {
+    if(results[j].get('location') == locs[k]) { %>
+    <tr>
+      <td class="text-center" style="width: 80px;"><%= results[j].get('type') %></td>        
+      <td class="text-left"><%= results[j].get('resource_name') %></td>
+      <td class="text-center" style="width: 80px;"><%= results[j].get('quantity') %></td>
+      <td class="text-center" style="width: 80px;"><%= results[j].get('unit') %></td>
+      <% if(requirer == "") { %>
+      <td class="text-center" style="width: 100px;"><%= results[j].get('requirer') %></td>
+      <% } %>
+      <td class="text-center" style="width: 100px;"><%= results[j].get('person_incharge') %></td>
+      <td class="text-center" style="width: 250px;"><%= results[j].get('note') %></td>      
+    </tr>
+    <% } %>
+  <% } %>
+  </table>
+<% } %>
+  
+  
