@@ -68,13 +68,14 @@
         rownumbers="true" fitColumns="true" singleSelect="true">
         <thead>
           <tr>
-            <th field="jobContent" width="50" editor="{type:'validatebox',options:{required:true}}">工作內容</th>
-            <th field="numOfPpl" width="50" editor="{type:'validatebox',options:{required:true}}">人數</th>
-            <th field="size" width="50" editor="text">規格</th>
-            <th field="unit" width="50" editor="text">單位</th>
-            <th field="unitPrice" width="50" editor="text">單價</th>
-            <th field="source" width="50" editor="text">物品來源</th>
-            <th field="deliverer" width="50" editor="text">運送人員</th>
+            <th field="jobContent" width="50" editor="{type:'validatebox',options:{required:true}}>工作內容</th>
+              <th field="numOfPpl" width="10" editor="{type:'validatebox',options:{required:true}}>人數需求</th>
+              <th field="workLocation" width="20">工作地點</th>
+              <th field="startTime" width="20">開始時間</th>
+              <th field="endTime" width="20">結束時間</th>
+              <th field="wageType" width="10">志工或工讀</th>              
+              <th field="gatherLocation" width="20">集合地點</th>              
+              <th field="note" width="50">備註</th>            
           </tr>
         </thead>
       </table>
@@ -107,7 +108,7 @@
             <th field="itemName" width="50" editor="{type:'validatebox',options:{required:true}}">物品名稱</th>
             <th field="amount" width="50" editor="{type:'validatebox',options:{required:true}}">數量</th>
             <th field="personIncharge" width="50" editor="text">負責人</th>
-            <th field="ownType" width="50" editor="text">物品性質</th>
+            <th field="ownType" width="50" editor="text">物品擁有方式</th>
             <th field="source" width="50" editor="text">來源</th>
             <th field="location" width="50" editor="text">地點</th>
             <th field="note" width="50" editor="text">備註</th>
